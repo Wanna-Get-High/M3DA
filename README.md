@@ -1,4 +1,3 @@
-M3DA
-====
+==M3DA
 
-Modélisation 3D Avancé lectures and work
+Modelisation 3D Avance lectures and work
