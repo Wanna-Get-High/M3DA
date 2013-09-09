@@ -1,4 +1,4 @@
 M3DA
 ====
 
-M3DA lectures and work
+Modélisation 3D Avancé lectures and work
