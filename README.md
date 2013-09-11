@@ -1,3 +1,3 @@
 ##M3DA
 
-Modelisation 3D Avance lectures and work
+Master 2 IVI courses and work : Modélisation 3D Avancée
