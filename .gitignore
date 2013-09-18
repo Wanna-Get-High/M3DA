@@ -32,4 +32,7 @@
 *.tdo
 
 .DS_Store
-*.metadata
+
+.metadata
+
+.settings
