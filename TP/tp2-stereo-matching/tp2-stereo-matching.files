@@ -1,0 +1,11 @@
+src/glue.cpp
+src/glue.hpp
+src/left.png
+src/left.xml
+src/prenom-nom.cpp
+src/prenom-nom.hpp
+src/right.png
+src/right.xml
+src/stereo-matching.cbp
+src/stereo-matching.cpp
+src/tp2-stereo-matching.cpp
