@@ -1,0 +1,163 @@
+ \documentclass[a4paper,10pt]{article}
+\input{/Users/WannaGetHigh/workspace/latex/macros.tex}
+
+\title{TP M3DA, semaine 1: \'el\'ements de g\'eom\'etrie projective et calibration de cam\'era}
+\author{Fran\c{c}ois \bsc{Lepan}}
+
+\begin{document}
+\maketitle
+
+Dans ce rapport nous allons voir comment calibrer une cam\'era via la m\'ethode de Zhang. Cette m\'ethode ce d\'ecoupe en plusieurs \'etapes dont nous allons voir le fonctionnement.
+
+\section*{Comparaison zhang.sce et rapport technique de zhang}
+
+Tout d'abord comparons le code scilab fournie avec une publication de Zhang afin de conna\^itres les \'etapes de cette m\'ethode. Cette m\'ethode suppose : \\
+
+\begin{itemize}
+\item de connaitre plusieurs points de la sc\`ene;
+\item ces points doivent \^etre dans le meme plan;
+\item on poss\`ede au moins deux images de ces points dont on connait les positions et les projections;
+\item les diff\'erentes images ne doivent pas r\'esulter d'une translation pure de la cam\'era. Elle doivent poss\'eder des orientations et positions diff\'erentes.
+\end{itemize}
+~\\
+
+Voici les \'etapes de cette m\'ethode :
+
+\begin{paragraph}{Pour chaque image on d\'etermine l'homographie entre les points projet\'es et les points de la sc\`ene}~\\
+
+C'est \`a dire que l'on va chercher comment passer d'un plan projectif \`a un autre via une transformation lin\'eaire. \\
+
+Rapport de Zhang section 2.2 : \emph{Homography between the model plane and its image.} ~\\
+
+Dans zhang.sce (ligne 41-42):
+
+\begin{Verbatim}
+	// Estimer l'homographie entre la mire et l' image
+	H(:,:,i) = ZhangHomography(M(sansZ,:), m(:,:,i));
+\end{Verbatim}
+\end{paragraph}
+
+~\\
+
+\begin{paragraph}{Avec les 2 contraintes sur les param\`etres intrins\`eques de la cam\'era on obtient 2n \'equations.}~\\
+
+Les deux contraintes sur les param\`etres intrins\`eques viennent du fait qu'une homographie poss\`ede 8 d\'egr\'ees de libert\'e et elle a 6 param\`etres extrins\`eques : 3 pour la rotation et 3 pour la translation. \\
+
+Rapport de Zhang section 2.3 : \emph{Constraints on the intrinsic parameters.} ~\\
+
+Dans zhang.sce (ligne 43-44):
+
+\begin{Verbatim}
+	// Ajouter deux lignes de contraintes dans V
+	V = [V; ZhangConstraints(H(:,:,i))];
+\end{Verbatim}
+\end{paragraph}
+
+~\\
+
+\begin{paragraph}{On d\'etermine les param\`etres intrins\`eques de la cam\'era.} ~\\
+
+Ces param\`etres sont :
+\begin{itemize}
+\item la distance focale.
+\item les deux facteurs d'agrandissement.
+\item les deux coordonn\'ees de la projection du centre optique de la cam\'era sur le plan image.
+\item la non-orthogonalit\'e potentielle des lignes et des colonnes du capteur de la cam\'era.
+\end{itemize}
+~\\
+
+Rapport de Zhang section B : \emph{Extraction of the Intrinsic Parameters from Matrix B.} ~\\
+
+Dans zhang.sce (ligne 48-49):
+
+\begin{Verbatim}
+	// Estimation de la matrice intrinseque
+	A = IntrinsicMatrix(b);
+\end{Verbatim}
+\end{paragraph}
+
+~\\
+
+\begin{paragraph}{On d\'etermine les param\`etres extrins\`eques de la cam\'era pour chacune des images.} ~\\
+
+Rapport de Zhang section 3.1 : \emph{Closed-form solution.} ~\\
+
+Dans zhang.sce (ligne 51-56):
+
+\begin{Verbatim}
+	// Estimations des matrices extrinseques
+	E = zeros(3, 4, ni);
+	for i = 1:ni
+		E(:,:,i) = ExtrinsicMatrix(iA, H(:,:,i));
+		disp(E(:,:,i))
+	end
+\end{Verbatim}
+\end{paragraph}
+
+~\\
+
+Maintenant que l'on conna\^it les \'etapes de la m\'ethode de Zhang on va voir comment elles sont impl\'ement\'e en scilab.
+
+\section*{Impl\'ementation}
+
+Dans cette section nous allons voir 3 m\'ethodes : 
+
+\begin{itemize}
+\item \verb&ZhangConstraintTerm& qui construit un vecteur ligne contenant les contraintes d'une homographie.
+\item \verb&IntrinsicMatrix& qui contruit une matrice 3x3 contenant les param\`etres intrins\`eques de la cam\'era.
+\item \verb&ExtrinsicMatrix& qui construit une matrice 3x4 contenant les param\`etres extrins\`eques de la cam\'era.
+\end{itemize}
+
+\begin{paragraph}{ZhangConstraintTerm}
+\begin{Verbatim}
+function v = ZhangConstraintTerm(H, i, j)
+    v = zeros(6);
+    v(1) = H(i,1) * H(j,1);
+    v(2) = H(i,1) * H(j,2) + H(i,2) * H(j,1);
+    v(3) = H(i,2) * H(j,2);
+    v(4) = H(i,3) * H(j,1) + H(i,1) * H(j,3);
+    v(5) = H(i,3) * H(j,2) + H(i,2) * H(j,3);
+    v(6) = H(i,3) * H(j,3);
+    v = v';
+endfunction
+\end{Verbatim}
+\end{paragraph}
+
+\begin{paragraph}{IntrinsicMatrix}
+\begin{Verbatim}
+function A = IntrinsicMatrix(b)
+
+	v0     = (b(2)*b(4) - b(1)*b(5)) / (b(1)*b(3) - b(2)^2);
+	lambda = b(6) - ( b(4)^2 + v0*( b(2)*b(4) - b(1)*b(5) ) )/b(1);
+	alpha  = sqrt( lambda / b(1) );
+	beta_  = sqrt( lambda * b(1) / ( b(1)*b(3) - b(2)^2 ) );
+	gama   = -b(2) * (alpha^2) * beta_ / lambda;
+	u0     = (gama * v0 / beta_) - ( b(4) * (alpha^2)/lambda );
+  
+	A = [alpha, gama,  u0;
+		0 , beta_, v0;
+		0 , 0    , 1];
+endfunction
+\end{Verbatim}
+\end{paragraph}
+
+\newpage
+
+\begin{paragraph}{ExtrinsicMatrix}
+\begin{Verbatim}
+function E = ExtrinsicMatrix(iA, H)
+
+	lambda = 1 / norm(iA*H(:,1)); 
+	r1 = lambda*iA*H(:,1);
+	r2 = lambda*iA*H(:,2);
+	r3 = r1.*r2;
+	t = lambda*iA*H(:,3);
+	
+	E = [   r1', t(1);
+		r2', t(2);
+		r3', t(3)];
+endfunction
+\end{Verbatim}
+\end{paragraph}
+
+\end{document}

@@ -23,7 +23,7 @@ exec ('francois-lepan.sci', -1);
 ni = 4;
 
 // Lire les coordonnees des points de la mire dans la scene
-M = read('points.txt', -1, 2)';
+M = read('points-1.txt', -1, 2)';
 np = size(M, 2);
 M = [M; zeros(1, np); ones(1, np)];
 sansZ = [1, 2, 4];
@@ -52,5 +52,5 @@ iA = inv(A);
 E = zeros(3, 4, ni);
 for i = 1:ni
   E(:,:,i) = ExtrinsicMatrix(iA, H(:,:,i));
+  disp(E(:,:,i))
 end
-
