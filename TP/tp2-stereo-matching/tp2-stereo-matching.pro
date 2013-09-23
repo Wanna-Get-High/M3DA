@@ -4,12 +4,12 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES +=glue.cpp \
-    prenom-nom.cpp \
     stereo-matching.cpp \
+    francois-lepan.cpp
 
 HEADERS += \
     glue.hpp \
-    prenom-nom.hpp
+    francois-lepan.hpp
 
 OTHER_FILES += \
     left.png \

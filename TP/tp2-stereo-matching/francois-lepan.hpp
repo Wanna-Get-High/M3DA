@@ -17,15 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -------------------------------------------------------------------------- */
 
 /* --------------------------------------------------------------------------
-Inclure les fichiers d'entete
+Prototypes des fonctions
 -------------------------------------------------------------------------- */
-#include <stdio.h>
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
-using namespace cv;
-#include "glue.hpp"
-#include "prenom-nom.hpp"
 
 // -----------------------------------------------------------------------
 /// \brief Detecte les coins.
@@ -35,17 +28,7 @@ using namespace cv;
 /// @return matrice des coins
 // -----------------------------------------------------------------------
 Mat iviDetectCorners(const Mat& mImage,
-                     int iMaxCorners) {
-    // A modifier !
-    double tx = mImage.cols, ty = mImage.rows;
-    Mat mCorners = (Mat_<double>(3,4) <<
-        .25 * tx, .75 * tx, .25 * tx, .75 * tx,
-        .25 * ty, .25 * ty, .75 * ty, .75 * ty,
-        1., 1., 1., 1.
-        );
-    // Retour de la matrice
-    return mCorners;
-}
+                     int iMaxCorners);
 
 // -----------------------------------------------------------------------
 /// \brief Initialise une matrice de produit vectoriel.
@@ -53,12 +36,7 @@ Mat iviDetectCorners(const Mat& mImage,
 /// @param v: vecteur colonne (3 coordonnees)
 /// @return matrice de produit vectoriel
 // -----------------------------------------------------------------------
-Mat iviVectorProductMatrix(const Mat& v) {
-    // A modifier !
-    Mat mVectorProduct = Mat::eye(3, 3, CV_64F);
-    // Retour de la matrice
-    return mVectorProduct;
-}
+Mat iviVectorProductMatrix(const Mat& v);
 
 // -----------------------------------------------------------------------
 /// \brief Initialise et calcule la matrice fondamentale.
@@ -72,13 +50,7 @@ Mat iviVectorProductMatrix(const Mat& v) {
 Mat iviFundamentalMatrix(const Mat& mLeftIntrinsic,
                          const Mat& mLeftExtrinsic,
                          const Mat& mRightIntrinsic,
-                         const Mat& mRightExtrinsic) {
-    // A modifier !
-    // Doit utiliser la fonction iviVectorProductMatrix
-    Mat mFundamental = Mat::eye(3, 3, CV_64F);
-    // Retour de la matrice fondamentale
-    return mFundamental;
-}
+                         const Mat& mRightExtrinsic);
 
 // -----------------------------------------------------------------------
 /// \brief Initialise et calcule la matrice des distances entres les
@@ -91,12 +63,7 @@ Mat iviFundamentalMatrix(const Mat& mLeftIntrinsic,
 // -----------------------------------------------------------------------
 Mat iviDistancesMatrix(const Mat& m2DLeftCorners,
                        const Mat& m2DRightCorners,
-                       const Mat& mFundamental) {
-    // A modifier !
-    Mat mDistances = Mat();
-    // Retour de la matrice fondamentale
-    return mDistances;
-}
+                       const Mat& mFundamental);
 
 // -----------------------------------------------------------------------
 /// \brief Initialise et calcule les indices des points homologues.
@@ -110,6 +77,12 @@ Mat iviDistancesMatrix(const Mat& m2DLeftCorners,
 void iviMarkAssociations(const Mat& mDistances,
                          double dMaxDistance,
                          Mat& mRightHomologous,
-                         Mat& mLeftHomologous) {
-    // A modifier !
-}
+                         Mat& mLeftHomologous);
+
+// -----------------------------------------------------------------------
+/// \brief Imprime les valeurs flotante contenues dans la matrice Mat.
+///
+/// @param mat: matrice à imprimer
+/// @return rien
+// -----------------------------------------------------------------------
+void printDoubleMatrix(Mat mat);

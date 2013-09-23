@@ -7,9 +7,11 @@
 \begin{document}
 \maketitle
 
+\section*{Introduction}
+
 Dans ce rapport nous allons voir comment calibrer une cam\'era via la m\'ethode de Zhang. Cette m\'ethode ce d\'ecoupe en plusieurs \'etapes dont nous allons voir le fonctionnement.
 
-\section*{Comparaison zhang.sce et rapport technique de zhang}
+\section{Comparaison zhang.sce et rapport technique de zhang}
 
 Tout d'abord comparons le code scilab fournie avec une publication de Zhang afin de conna\^itres les \'etapes de cette m\'ethode. Cette m\'ethode suppose : \\
 
@@ -98,7 +100,7 @@ Dans zhang.sce (ligne 51-56):
 
 Maintenant que l'on conna\^it les \'etapes de la m\'ethode de Zhang on va voir comment elles sont impl\'ement\'e en scilab.
 
-\section*{Impl\'ementation}
+\section{Impl\'ementation}
 
 Dans cette section nous allons voir 3 m\'ethodes : 
 
@@ -112,12 +114,14 @@ Dans cette section nous allons voir 3 m\'ethodes :
 \begin{Verbatim}
 function v = ZhangConstraintTerm(H, i, j)
     v = zeros(6);
-    v(1) = H(i,1) * H(j,1);
-    v(2) = H(i,1) * H(j,2) + H(i,2) * H(j,1);
-    v(3) = H(i,2) * H(j,2);
-    v(4) = H(i,3) * H(j,1) + H(i,1) * H(j,3);
-    v(5) = H(i,3) * H(j,2) + H(i,2) * H(j,3);
-    v(6) = H(i,3) * H(j,3);
+    
+    v(1) = H(1,i) * H(1,j);
+    v(2) = H(1,i) * H(2,j) + H(2,i) * H(1,j);
+    v(3) = H(2,i) * H(2,j);
+    v(4) = H(3,i) * H(1,j) + H(1,i) * H(3,j);
+    v(5) = H(3,i) * H(2,j) + H(2,i) * H(3,j);
+    v(6) = H(3,i) * H(3,j);
+    
     v = v';
 endfunction
 \end{Verbatim}
@@ -159,5 +163,55 @@ function E = ExtrinsicMatrix(iA, H)
 endfunction
 \end{Verbatim}
 \end{paragraph}
+
+\section{R\'esultats}
+
+Dans cette partie nous allons comparer les r\'esultats obtenu via la m\'ethode de Zhang avec les valeurs r\'eels des param\`etres intrins\`eques et extrins\`eques de la cam\'era. \\ 
+
+Si on prend les fichiers donnant ces param\`etres pour l'image 1 on a : \\
+
+Matrice intrins\`eque :
+
+\begin{Verbatim}[commandchars=\\\{\}]
+	| 3546.099291   0.000000     320.000000 |
+	| 0.000000      3546.099291  240.000000 |
+	| 0.000000      0.000000     1.000000 |
+\end{Verbatim}
+
+Matrice extrins\`eque :
+
+\begin{Verbatim}[commandchars=\\\{\}]
+	Translation = (0, 0, 10000), Rotation = (0, 0, 0)
+\end{Verbatim}
+
+~\\
+
+Et voici les r\'esultats de la m\'ethode de Zhang : \\
+
+Matrice intrins\`eque :
+\begin{Verbatim}[commandchars=\\\{\}]
+	| 3499.42869    -2.57047    335.07035 |
+	| 0.0           3504.17250  224.16650 |
+	| 0.0           0.0         1.0       |
+\end{Verbatim}
+
+Matrice extrins\`eque :
+\begin{Verbatim}[commandchars=\\\{\}]
+	| 1.           5.574D-18    1.263D-15  - 335.23479 |
+	| 0.0007335    0.9986462    2.266D-14  - 223.86304 |
+	| - 1.262D-15  - 2.265D-14  0.9986462    3499.4287 |
+\end{Verbatim}
+
+\newpage
+
+Pour ce qui est de la matrice intrins\`eque Il n'y a pas beaucoup d'erreur d'approximation on obtient \`a peut de chose pr\`es les m\^emes valeurs. Ces impr\'ecisions peuvent \^etre r\'eduites si on rajoute des images ayant des param\`etres diff\'erents des images d\'ej\`a utilis\'ees par la m\'ethodes de Zhang. En effet grâce \`a ces images on augmenterai le nombre d'\'equations \`a r\'esoudre et donc la pr\'ecision des r\'esultats. \\
+
+Par contre pour la matrice extrins\`eque on a pas du tout les bonne valeurs. Ceci est due \`a la version de Scilab pour mac. J'ai test\'e le code d'une autre personne qui utilise Windows - dont les r\'esultats sont concluant - sur ma machine mais j'ai les m\^emes r\'esultats qu'avec mon code.
+
+En supposant que les r\'esultats soient plus justes je devrais avoir en bas \`a droite de ma matrice extrins\`eque une valeur proche de 10 000.
+
+\section*{Conclusion}
+
+La m\'ethode de Zhang est une m\'ethode qui est puissante du fait qu'elle n'a que 4 contraintes afin d'\^etre utilisable. De plus la pr\'ecision peut \^etre grande comme faible en fonction de la situation il suffit de prendre en compte plus ou moins d'images dans la m\'ethode.
 
 \end{document}
