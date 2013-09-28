@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by Qt Creator 2.6.1, 2013-09-23T13:19:40. -->
+<!-- Written by Qt Creator 2.6.1, 2013-09-27T14:11:01. -->
 <qtcreator>
  <data>
   <variable>ProjectExplorer.Project.ActiveTarget</variable>
@@ -209,7 +209,7 @@
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QByteArray" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/Users/WannaGetHigh/workspace/M2/M3DA/TP/tp2-stereo-matching/tp2-stereo-matching.pro</value>
     <value type="int" key="Qt4ProjectManager.Qt4RunConfiguration.BaseEnvironmentBase">2</value>
-    <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments">-d left.png right.png left.xml right.xml</value>
+    <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments">-d left.png right.png left.xml right.xml -v</value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.ProFile">tp2-stereo-matching.pro</value>
     <value type="bool" key="Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix">false</value>
     <value type="bool" key="Qt4ProjectManager.Qt4RunConfiguration.UseTerminal">false</value>

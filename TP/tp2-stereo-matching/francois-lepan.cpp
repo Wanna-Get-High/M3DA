@@ -27,6 +27,7 @@ Inclure les fichiers d'entete
 
 using namespace cv;
 using namespace std;
+
 #include "glue.hpp"
 #include "francois-lepan.hpp"
 
@@ -140,8 +141,6 @@ Mat iviFundamentalMatrix(const Mat& mLeftIntrinsic,
     // calcule de la matrice fondamentale à partir des projection de pL et pR
     Mat mFundamental = iviVectorProductMatrix(pR*oL) * pR*pLPlus;
 
-    cout << iviVectorProductMatrix(pR*oL) << endl;
-
     // Retour de la matrice fondamentale
     return mFundamental;
 }
@@ -162,92 +161,150 @@ Mat iviDistancesMatrix(const Mat& m2DLeftCorners,
     int nbPointsImgLeft = m2DLeftCorners.cols;
     int nbPointsImgRight = m2DRightCorners.cols;
 
+    Mat droitesEpipolaireDepuisImageGauche = mFundamental.t() * m2DLeftCorners;
+
+    Mat droitesEpipolaireDepuisImageDroite = mFundamental * m2DRightCorners;
+
     Mat mDistances = Mat_<double>(nbPointsImgLeft,nbPointsImgRight);
+    Mat mDistances1 = Mat_<double>(nbPointsImgRight,nbPointsImgLeft);
 
-    Mat mFundamentalTransposed = mFundamental.t();
-
-
-    // la droite épipolaire de pi2 (image de droite)
-    // associée à m1 (un coin de image de gauche) est la droite d2 = Fm1
-    // -> calculer la distance d'un point de pi2 -> d2.
-    // Mat droiteEpipolaire =  mFundamental * m2DLeftCorners.col(i);
-    // double distance = distance_between(m2DRightCorners.col(j), droiteEpipolaire);
+    // distances entre "corners" image de droite avec
+    // la droite epipolaire sur image droite
     for (int i = 0; i < nbPointsImgLeft; ++i) {
-        Mat currentPointLeftImage = m2DLeftCorners.col(i);
-        Mat droiteEpipolaireImageDroite =  mFundamental * currentPointLeftImage;
 
-        // la droite épipolaire de pi1 (image de gauche)
-        // associée à m2 (un coin de image de droite) est la droite d1 = FT m2
-        // -> calculer la distance d'un point de pi1 -> d1.
-        // Mat droiteEpipolaire =  mFundamental.t() * m2DRightCorners.col(j);
-        // double distance = distance_between(m2DRightCorners.col(j), droiteEpipolaire);
+        double dx = droitesEpipolaireDepuisImageGauche.at<double>(0,i);
+        double dy = droitesEpipolaireDepuisImageGauche.at<double>(1,i);
+        double dz = droitesEpipolaireDepuisImageGauche.at<double>(2,i);
+
         for (int j=0; j< nbPointsImgRight; ++j) {
-            Mat currentPointLeftImage = m2DRightCorners.col(j);
-            Mat droiteEpipolaireImageGauche =  mFundamentalTransposed * currentPointLeftImage;
 
-            double x1 = droiteEpipolaireImageDroite.at<double>(0);
-            double y1 = droiteEpipolaireImageDroite.at<double>(1);
-            double z1 = droiteEpipolaireImageDroite.at<double>(2);
+            double px = m2DRightCorners.at<double>(0,j);
+            double py = m2DRightCorners.at<double>(1,j);
 
-            double x2 = m2DRightCorners.at<double>(0,j);
-            double y2 = m2DRightCorners.at<double>(1,j);
-            double z2 = m2DRightCorners.at<double>(2,j);
-
-            double distR = hypot(hypot(x1-x2,y1-y2),z1-z2);
-
-            double x3 = droiteEpipolaireImageGauche.at<double>(0);
-            double y3 = droiteEpipolaireImageGauche.at<double>(1);
-            double z3 = droiteEpipolaireImageGauche.at<double>(2);
-
-            double x4 = currentPointLeftImage.at<double>(0);
-            double y4 = currentPointLeftImage.at<double>(1);
-            double z4 = currentPointLeftImage.at<double>(2);
-
-            double distG = hypot(hypot(x3-x4,y3-y4),z3-z4);
-
-            // on additionne les distances
-            mDistances.at<double>(i,j) = distR + distG;
+            mDistances.at<double>(i,j) = abs(dx*px + dy*py + dz) / sqrt(pow(dx,2) + pow(dy,2));
         }
     }
 
-    // Retour de la matrice des distances
-    return mDistances;
+    // distances entre "corners" image de gauche avec
+    // la droite epipolaire sur image gauche
+    for (int i = 0; i < nbPointsImgRight; ++i) {
+
+        double dx = droitesEpipolaireDepuisImageDroite.at<double>(0,i);
+        double dy = droitesEpipolaireDepuisImageDroite.at<double>(1,i);
+        double dz = droitesEpipolaireDepuisImageDroite.at<double>(2,i);
+
+        for (int j=0; j< nbPointsImgLeft; ++j) {
+
+            double px = m2DLeftCorners.at<double>(0,j);
+            double py = m2DLeftCorners.at<double>(1,j);
+
+            mDistances1.at<double>(i,j) = abs(dx*px + dy*py + dz) / sqrt(pow(dx,2) + pow(dy,2));
+        }
+    }
+
+    return mDistances + mDistances1.t();
 }
 
 // -----------------------------------------------------------------------
 /// \brief Initialise et calcule les indices des points homologues.
 ///
 /// @param mDistances: matrice des distances
-/// @param dMaxDistance: distance maximale autorisant une association
+/// @param fMaxDistance: distance maximale autorisant une association
 /// @param mRightHomologous: liste des correspondants des points gauche
 /// @param mLeftHomologous: liste des correspondants des points droite
 /// @return rien
 // -----------------------------------------------------------------------
-void iviMarkAssociations(const Mat& mDistances,
+void iviMarkAssociations(Mat& mDistances,
                          double dMaxDistance,
                          Mat& mRightHomologous,
                          Mat& mLeftHomologous) {
+    int nbTurn = 0;
+    int index = 0;
 
+    mRightHomologous = initMatrix(mDistances.cols);
+    mLeftHomologous = initMatrix(mDistances.rows);
 
-    // A modifier !
+    if (mDistances.rows > mDistances.cols)  nbTurn = mDistances.cols;
+    else                                    nbTurn = mDistances.rows;
+
+    int x;
+    int y;
+
+    while (index < nbTurn) {
+        if (findMinValue(mDistances,x,y,dMaxDistance)) {
+
+            mRightHomologous.at<int>(x) = y;
+            mLeftHomologous.at<int>(y) = x;
+
+            removeLigneColFrom(mDistances,x,y);
+        }
+        index++;
+    }
+
     cout << mRightHomologous << endl;
     cout << mLeftHomologous << endl;
 }
 
 
-
 // -----------------------------------------------------------------------
-/// \brief Imprime les valeurs flotante contenues dans la matrice Mat.
+/// \brief initialise une matrice avec une taille de size remplit de -1
 ///
-/// @param mat: matrice à imprimer
+/// @param size: taille de la matrice
 /// @return rien
 // -----------------------------------------------------------------------
-void printDoubleMatrix(Mat mat){
-    for (int i = 0; i < mat.rows; ++i) {
-        for (int j = 0; j < mat.cols; ++j) {
-            cout << mat.at<double>(i,j) << " ";
-        }
-        cout << endl;
+Mat initMatrix(int size) {
+    Mat matrix = Mat_<int>(size,1);
+
+    for (int i = 0; i < size; ++i) {
+        matrix.at<int>(i) = -1;
+    }
+
+    return matrix;
+}
+
+// -----------------------------------------------------------------------
+/// \brief met des -1 sur toute la ligne i et la colonne j.
+///
+/// @param mDistances: matrice des distances
+/// @param x: position de la ligne
+/// @param y: position de la colonne
+/// @return rien
+// -----------------------------------------------------------------------
+void removeLigneColFrom(Mat& mDistances, int x, int y) {
+    for (int i = 0; i < mDistances.rows; ++i) {
+        mDistances.at<double>(i,y) = -1;
+    }
+
+    for (int i = 0; i < mDistances.cols; ++i) {
+        mDistances.at<double>(x,i) = -1;
     }
 }
 
+
+// -----------------------------------------------------------------------
+/// \brief recupere la valeur maximum contenu dans la matrice maxDistances et stock dans i et j sa position.
+///
+/// @param mDistances: matrice des distances
+/// @param x: position de la ligne
+/// @param y: position de la colonne
+/// @param maxDist: distance maximale
+/// @return rien
+// -----------------------------------------------------------------------
+bool findMinValue(Mat mDistances, int& x, int& y, int maxDist) {
+    double min = maxDist;
+    bool found = false;
+
+    for (int i = 0; i < mDistances.rows; ++i) {
+        for (int j = 0; j < mDistances.cols; ++j) {
+            double val = mDistances.at<double>(i,j);
+            if (val != -1 && val < maxDist && val < min) {
+                min = val;
+                x = i;
+                y = j;
+                found = true;
+            }
+        }
+    }
+
+    return found;
+}

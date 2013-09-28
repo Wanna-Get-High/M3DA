@@ -74,15 +74,37 @@ Mat iviDistancesMatrix(const Mat& m2DLeftCorners,
 /// @param mLeftHomologous: liste des correspondants des points droite
 /// @return rien
 // -----------------------------------------------------------------------
-void iviMarkAssociations(const Mat& mDistances,
+void iviMarkAssociations(Mat& mDistances,
                          double dMaxDistance,
                          Mat& mRightHomologous,
                          Mat& mLeftHomologous);
 
+
 // -----------------------------------------------------------------------
-/// \brief Imprime les valeurs flotante contenues dans la matrice Mat.
+/// \brief initialise une matrice avec une taille de size remplit de -1
 ///
-/// @param mat: matrice à imprimer
+/// @param size: taille de la matrice
 /// @return rien
 // -----------------------------------------------------------------------
-void printDoubleMatrix(Mat mat);
+Mat initMatrix(int size);
+
+// -----------------------------------------------------------------------
+/// \brief met des -1 sur toute la ligne i et la colonne j.
+///
+/// @param mDistances: matrice des distances
+/// @param x: position de la ligne
+/// @param y: position de la colonne
+/// @return rien
+// -----------------------------------------------------------------------
+void removeLigneColFrom(Mat& mDistances, int x, int y);
+
+// -----------------------------------------------------------------------
+/// \brief recupere la valeur maximum contenu dans la matrice maxDistances et stock dans i et j sa position.
+///
+/// @param mDistances: matrice des distances
+/// @param x: position de la ligne
+/// @param y: position de la colonne
+/// @param maxDist: distance maximale
+/// @return true si il a trouve une valeur
+// -----------------------------------------------------------------------
+bool findMinValue(Mat mDistances, int& x, int& y, int maxDist);
