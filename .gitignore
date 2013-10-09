@@ -31,6 +31,6 @@
 *.xdy
 *.tdo
 
-.DS_Store
+TP/.DS_Store
 .metadata
-*-build-Desktop-Debug/
+TP/*-build-Desktop-Debug/
