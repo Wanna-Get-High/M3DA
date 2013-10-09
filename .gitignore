@@ -31,6 +31,12 @@
 *.xdy
 *.tdo
 
-TP/.DS_Store
+*.o
+.DS_Store
 .metadata
-TP/*-build-Desktop-Debug/
+*.user
+*.user.*
+*.app
+*.obj
+*-Debug
+*-Realease
