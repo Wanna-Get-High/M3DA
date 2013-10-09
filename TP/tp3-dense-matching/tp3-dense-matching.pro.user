@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by Qt Creator 2.6.1, 2013-09-24T16:43:38. -->
+<!-- Written by Qt Creator 2.6.1, 2013-10-09T08:06:06. -->
 <qtcreator>
  <data>
   <variable>ProjectExplorer.Project.ActiveTarget</variable>
@@ -209,7 +209,7 @@
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QByteArray" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/Users/WannaGetHigh/workspace/M2/M3DA/TP/tp3-dense-matching/tp3-dense-matching.pro</value>
     <value type="int" key="Qt4ProjectManager.Qt4RunConfiguration.BaseEnvironmentBase">2</value>
-    <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments"></value>
+    <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments">-d -v left.png right.png</value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.ProFile">tp3-dense-matching.pro</value>
     <value type="bool" key="Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix">false</value>
     <value type="bool" key="Qt4ProjectManager.Qt4RunConfiguration.UseTerminal">true</value>
