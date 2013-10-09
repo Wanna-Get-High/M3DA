@@ -6,6 +6,7 @@
 
 #include "GLView.h"
 #include <iostream>
+#include "nurbs.h"
 
 using namespace std;
 using namespace prog3d;
@@ -167,34 +168,38 @@ void GLView::updateData() {
 
 
 void GLView::paintGL() {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  glPushMatrix();
+//  glPushMatrix();
 
-  /// drawing examples
+//  /// drawing examples
 
-  glColor3f(1,0,0);
-  ugl::drawText("drawing example",0.2,0.2);
+//  glColor3f(1,0,0);
+//  ugl::drawText("drawing example",0.2,0.2);
 
-  glLineWidth(3);
-  glColor3f(0,1,0);
-  glBegin(GL_LINE_STRIP);
-  glVertex2f(0,-0.5);
-  glVertex2f(-0.5,0.5);
-  glVertex2f(0.5,0.5);
-  glVertex2f(0,-0.5);
-  glEnd();
+//  glLineWidth(3);
+//  glColor3f(0,1,0);
+//  glBegin(GL_LINE_STRIP);
+//  glVertex2f(0,-0.5);
+//  glVertex2f(-0.5,0.5);
+//  glVertex2f(0.5,0.5);
+//  glVertex2f(0,-0.5);
+//  glEnd();
 
-  glPointSize(10);
-  glColor3f(0,0,1);
-  glBegin(GL_POINTS);
-  glVertex2f(0,-0.5);
-  glVertex2f(-0.5,0.5);
-  glVertex2f(0.5,0.5);
-  glEnd();
+//  glPointSize(10);
+//  glColor3f(0,0,1);
+//  glBegin(GL_POINTS);
+//  glVertex2f(0,-0.5);
+//  glVertex2f(-0.5,0.5);
+//  glVertex2f(0.5,0.5);
+//  glEnd();
 
 
-  glPopMatrix();
+//  glPopMatrix();
+
+  Nurbs nurbs = Nurbs();
+  nurbs.initialize(3,4);
+  nurbs.drawN(0,4);
 }
 
 /** ********************************************************************** **/

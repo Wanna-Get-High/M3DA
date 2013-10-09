@@ -27,7 +27,9 @@ public:
     ///
     /// \param m le nombre de point de controle
     /// \param p le degre
-    void evaluate(double k, );
+    double evaluate(double k, int p, double t);
+
+    void drawN(int k, int n);
 };
 
 #endif // NURBS_H
