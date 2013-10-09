@@ -288,12 +288,12 @@ Mat iviLeftRightConsistency(const Mat& mLeftDisparity,
         for (int j = 0; j < mDisparity.cols; ++j) {
 
             double dispariteGauche = (double)mLeftDisparity.at<unsigned char>(i,j);
-            double dispariteDroiteCorrespondant = (double)mRightDisparity.at<unsigned char>(i, j - dispariteGauche);
+            double dispariteGaucheCorrespondant = (double)mRightDisparity.at<unsigned char>(i, j - dispariteGauche);
 
             double dispariteDroite = (double)mRightDisparity.at<unsigned char>(i,j);
-            double dispariteGaucheCorrespondant = (double)mLeftDisparity.at<unsigned char>(i, j + dispariteDroite);
+            double dispariteDroiteCorrespondant = (double)mLeftDisparity.at<unsigned char>(i, j + dispariteDroite);
 
-            if (dispariteGauche != dispariteDroiteCorrespondant || dispariteDroite != dispariteGaucheCorrespondant) {
+            if (dispariteGauche != dispariteGaucheCorrespondant || dispariteDroite != dispariteDroiteCorrespondant) {
                 mValidityMask.at<unsigned char>(i,j) = 255;
             } else {
                 mDisparity.at<unsigned char>(i,j) = dispariteGauche;
