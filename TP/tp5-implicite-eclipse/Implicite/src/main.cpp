@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
   // initialize the Qt application
   QApplication application(argc, argv);
 
+
   // create and show the main window
   MainWindow mainWindow;
   mainWindow.show();

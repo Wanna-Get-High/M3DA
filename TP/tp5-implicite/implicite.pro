@@ -4,11 +4,13 @@
 #
 #-------------------------------------------------
 
+
 CONFIG += debug_and_release
 QT += core gui opengl # should be ok for Qt 4.8 and Qt 5.1
+#QMAKE_CXXFLAGS += -std=c++11 # C++ 11
 TEMPLATE = app
-QMAKE_CXXFLAGS += -std=c++0x # C++ 11
-#CONFIG += with_glew # decomment this line if glew is required
+
+# CONFIG += with_glew # uncomment this line if glew is required
 
 with_glew:DEFINES+=WITH_GLEW # to check if #include <GL/glew.h> should be done in .cpp / .h
 
@@ -18,11 +20,10 @@ unix:!macx:with_glew {
 }
 
 macx {
-    QMAKE_CXXFLAGS -= -std=c++0x # C++ 11
     INCLUDEPATH += /opt/local/include
     CONFIG += link_pkgconfig
     with_glew:LIBS+=-lglew
-    LIBS += -lglew -framework OpenGL
+    LIBS += -framework OpenGL
 }
 
 win32 {
@@ -40,6 +41,7 @@ CONFIG(debug,debug|release) {
 DESTDIR = $$_PRO_FILE_PWD_/bin
 message(Executable path : $$DESTDIR)
 
+
 INCLUDEPATH += src
 DEPENDPATH += src
 
@@ -49,8 +51,8 @@ SOURCES += \
     src/main.cpp \
     src/GLView.cpp \
     src/Error.cpp \
-    src/nurbs.cpp \
-    src/vector2.cpp
+    src/grid.cpp \
+    src/Implicit.cpp
 
 HEADERS += \
     src/UtilGL.h \
@@ -58,5 +60,5 @@ HEADERS += \
     src/GLView.h \
     src/glsupport.h \
     src/Error.h \
-    src/nurbs.h \
-    src/vector2.h
+    src/grid.h \
+    src/Implicit.h

@@ -11,10 +11,9 @@
 #define GLVIEW_H
 
 #include "glsupport.h"
-
+#include "grid.h"
 #include "UtilGL.h"
 #include <QtEvents>
-#include "nurbs.h"
 
 
 /**
@@ -33,6 +32,7 @@ public:
   //! initialize data application
   void initData();
 
+  Grid *_grid;
 
 protected:
   // OpenGL drawing :
@@ -57,23 +57,22 @@ protected:
   //! called when the mouse wheel is turned
   void wheelEvent(QWheelEvent *event);
 
+  // drawing choice
+  void drawChoice0();
+  void drawChoice1();
+  // etc ... void drawChoice2();
 
 private:
   int _choice;
-  Nurbs _nurbs;
-    double _step;
+  std::string _choiceText;
+
 signals:
 
 public slots:
   //! called every 20ms by the MainWindow
   void updateData();
 
-  void choice1();
-  void choice2();
-  void choice3();
-  void choice4();
-  void choice5();
-
+  void choice(int i, const std::string &s);
 };
 
 #endif // GLVIEW_H
