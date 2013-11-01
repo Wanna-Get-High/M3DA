@@ -41,10 +41,10 @@ MainWindow::MainWindow() :
 
   // application buttons
   _choice.clear();
-  _choice.push_back(new QPushButton("draw something"));
-  _choice.push_back(new QPushButton("draw squares"));
-  _choice.push_back(new QPushButton("..."));
-  _choice.push_back(new QPushButton("..."));
+  _choice.push_back(new QPushButton("draw circle as square"));
+  _choice.push_back(new QPushButton("draw circle as lines"));
+  _choice.push_back(new QPushButton("draw blob ambigus choice 1"));
+  _choice.push_back(new QPushButton("draw blob ambigus choice 2"));
   _choice.push_back(new QPushButton("..."));
 
 

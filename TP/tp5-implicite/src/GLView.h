@@ -60,6 +60,8 @@ protected:
   // drawing choice
   void drawChoice0();
   void drawChoice1();
+  void drawChoice2();
+  void drawChoice3();
   // etc ... void drawChoice2();
 
 private:

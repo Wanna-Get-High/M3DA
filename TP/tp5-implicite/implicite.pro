@@ -52,7 +52,8 @@ SOURCES += \
     src/GLView.cpp \
     src/Error.cpp \
     src/grid.cpp \
-    src/Implicit.cpp
+    src/Implicit.cpp \
+    src/Vector2.cpp
 
 HEADERS += \
     src/UtilGL.h \
@@ -61,4 +62,5 @@ HEADERS += \
     src/glsupport.h \
     src/Error.h \
     src/grid.h \
-    src/Implicit.h
+    src/Implicit.h \
+    src/Vector2.h
