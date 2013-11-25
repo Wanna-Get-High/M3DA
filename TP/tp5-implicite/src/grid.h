@@ -26,6 +26,9 @@ private:
      */
     int **_cuttedGrid;
 
+    /**
+     * @brief _ambigusChoice the choice made for the ambigus case of themarching square algorithm
+     */
     int _ambigusChoice;
 
     /**
@@ -112,8 +115,6 @@ private:
     /**
      * @brief computeSingleSegment compute the position of the points of the segment and add it to the _segments vector.
      *
-     *  TODO : don't get the points 2 times.
-     *
      * @param x0 the x position of the first point of the first segment
      * @param y0 the y position of the first point of the first segment
      * @param x1 the x position of the second point of the first segment
@@ -128,18 +129,22 @@ private:
 
 
     /**
-     * @brief interpolatePosition interpolate the position between the two points passed in parameters.
-     *          This interpolated point is then added to _segments.
-     *          The position searched is the one where the value is equal to 0.
+     * @brief interpolatePosition interpolate the position of the points of the new segment
+     *          that will be added to _segments
      *
-     * @param x0 the x position of the first point
-     * @param y0 the y position of the first point
-     * @param x1 the x position of the second point
-     * @param y1 the y position of the second point
-     * @param t the value of interpolation
+     * @param x0 the x position of the first point of the first segment
+     * @param y0 the y position of the first point of the first segment
+     * @param x1 the x position of the second point of the first segment
+     * @param y1 the y position of the second point of the first segment
+     * @param t1 the value of interpolation to find the coordinates of the first point of the new segment
+     * @param x2 the x position of the first point of the second segment
+     * @param y2 the y position of the first point of the second segment
+     * @param x3 the x position of the second point of the second segment
+     * @param y3 the y position of the second point of the second segment
+     * @param t2 the value of interpolation to find the coordinates of the second point of the new segment
      */
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    void interpolatePosition(int x0, int y0, int x1, int y1, double t1, int x2, int y2, int x3, int y3, double t2);
+    void interpolatePosition(int x0, int y0, int x1, int y1, double t1,
+                             int x2, int y2, int x3, int y3, double t2);
 
     /**
      * @brief changeSystemReference change the value to be between -1 and 1.
@@ -151,18 +156,29 @@ private:
      */
     double changeSystemReference(double value, double size);
 
-
     /**
-     * @brief addPointToSegments add a point to the _segments vector.
-     *
-     * @param xPos the x position of the point to be added.
-     * @param yPos the y position of the point to be added.
+     * @brief addSegmentToSegments add a new segment to the _segments vector
+     * @param xPoint1 the x coordinate of the first point
+     * @param yPoint1 the y coordinate of the first point
+     * @param xPoint2 the x coordinate of the second point
+     * @param yPoint2 the y coordinate of the second point
      */
-    ////////////////////////////////////////////////////////////////////////////////////////////
     void addSegmentToSegments(double xPoint1, double yPoint1, double xPoint2, double yPoint2);
 
     /**
-     * @brief sortCurvePoints sort the points so that you can draw lines between each points easily.
+     * @brief computeCurvePoints compute the points that will be added to _curves.
+     *          It creates a current curve.
+     *          It add the first 2 points of the first element of _segments to the current curve.
+     *
+     *          Then it search for a segment in _segments that has a common point
+     *               if he found one
+     *                      it add to the current curve
+     *                      and remove the founded segment from _segments
+     *               else
+     *                      it add the current curve to _curves
+     *                      and create a new current curve
+     *                      then add the first 2 points of the first element of _segments to the current curve.
+     *
      */
     void computeCurvePoints();
 
@@ -180,6 +196,9 @@ public:
     void drawGridAsPoints();
 
 
+    /**
+     * @brief drawGridAsLines draw the grid as lines.
+     */
     void drawGridAsLines();
 
     /**
@@ -187,11 +206,13 @@ public:
      */
     void drawCurvesWithPoints();
 
-
+    /**
+     * @brief drawCurvesWithLines draw the curve as lines.
+     */
     void drawCurvesWithLines();
 
     /**
-     * @brief eval evaluate the function eval of Implicit class for each point of the grid
+     * @brief eval evaluate the chosen function of Implicit class for each point of the grid.
      */
     void eval();
 
@@ -200,13 +221,29 @@ public:
      */
     void computeCells();
 
+    /**
+     * @brief setChoice set the choice of the function that will be used in Implicit
+     * @param choice the choice
+     */
     void setChoice(int choice);
 
+    /**
+     * @brief getChoice get the current choice
+     * @return an integer representing the choice
+     */
     int getChoice();
 
+    /**
+     * @brief setAmbigusChoice set the ambigus choice
+     * @param choice the choice
+     */
     void setAmbigusChoice(int choice);
 
+    /**
+     * @brief addBlob add a blob to the Implicit class
+     */
     void addBlob(double a, double b, Vector2 center, double r);
+
 };
 
 #endif // GRID_H

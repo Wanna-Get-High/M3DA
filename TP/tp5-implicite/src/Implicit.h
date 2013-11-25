@@ -8,10 +8,23 @@
 class Implicit
 {
     std::vector <Vector2> _centers;
+
     std::vector <double> _as;
     std::vector <double> _bs;
     std::vector <double> _rs;
+
     int _choice;
+
+    double evalCircle(double x, double y);
+
+    double evalSoftObjects(double x, double y);
+
+    double evalSoftObject(int i, double  x, double y);
+
+    double evalBlobs(double x, double y);
+
+    double evalBlob(int i, double x, double y);
+
 
 public:
     Implicit();
@@ -20,23 +33,12 @@ public:
 
     double eval(double x, double y);
 
-    /**
-     * @brief eval evaluate the expression x^2 + y^2 - 1
-     * @param x the value of x
-     * @param y the value of y
-     * @return the value of the expression
-     */
-    double evalCircle(double x, double y);
-
-    double evalBlob(int i, double x, double y);
-
-    double evalBlobs(double x, double y);
-
     void addBlob(double a, double b, Vector2 center, double r);
 
     void setChoice(int choice);
 
     int getChoice();
+
 };
 
 #endif // IMPLICIT_H

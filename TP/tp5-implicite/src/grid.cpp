@@ -25,7 +25,6 @@ Grid::Grid(int x, int y)
     for (int i = 0; i < x; ++i) {
         _cuttedGrid[i] = new int[y];
     }
-
 }
 
 void Grid::eval() {
@@ -48,6 +47,7 @@ void Grid::eval() {
     }
 
     Grid::computeCells();
+
 }
 
 
@@ -107,18 +107,17 @@ void Grid::drawGridAsLines() {
 }
 
 
-
 void Grid::drawCurvesWithPoints() {
 
     glPushMatrix();
     glPointSize(10);
-    glBegin(GL_POINTS);
-
     glColor3f(0,1,0);
 
     int nbCurve = _curves.size();
 
     for (int i = 0; i < nbCurve; ++i) {
+
+        glBegin(GL_POINTS);
 
         std::vector<Vector2> curve = _curves.at(i);
         int size = curve.size();
@@ -131,9 +130,10 @@ void Grid::drawCurvesWithPoints() {
 
             glVertex2d(pointX, pointY);
         }
+
+        glEnd();
     }
 
-    glEnd();
     glPopMatrix();
 }
 
@@ -173,7 +173,6 @@ void Grid::drawCurvesWithLines() {
     glPopMatrix();
 }
 
-
 void Grid::computeCells() {
 
     _curves.clear();
@@ -191,90 +190,93 @@ void Grid::computeCells() {
 
 void Grid::computeCurvePoints() {
 
-    // we initialize the 1st curve of the several potential curves
-    std::vector<Vector2> curve;
-    std::vector<Vector2> newSegment = _segments.at(0);
+    if (_segments.size() > 0) {
+        // we initialize the 1st curve of the several potential curves
+        std::vector<Vector2> curve;
+        std::vector<Vector2> newSegment = _segments.at(0);
 
-    // we add the points of the first segment
-    curve.push_back(newSegment.at(0));
-    curve.push_back(newSegment.at(1));
+        // we add the points of the first segment
+        curve.push_back(newSegment.at(0));
+        curve.push_back(newSegment.at(1));
 
-    // we erase the first segment
-    _segments.erase(_segments.begin());
+        // we erase the first segment
+        _segments.erase(_segments.begin());
 
-    int index;
-    bool stillSegmentToAttach = true;
-    int size;
+        int index;
+        bool stillSegmentToAttach = true;
+        int size;
 
-    // while there is still segment in the segment vector
-    while (_segments.size() > 0) {
+        // while there is still segment in the segment vector
+        while (_segments.size() > 0) {
 
-        // if we founded a segment that has a point in common
-        if (stillSegmentToAttach) {
+            // if we founded a segment that has a point in common
+            if (stillSegmentToAttach) {
 
-            // we get the last added point to find the next segment
-            // that has a point in common
-            Vector2 lastVectorAdded = curve.at(curve.size()-1);
+                // we get the last added point to find the next segment
+                // that has a point in common
+                Vector2 lastVectorAdded = curve.at(curve.size()-1);
 
-            index = 0;
-            stillSegmentToAttach = false;
-            size = _segments.size();
+                index = 0;
+                stillSegmentToAttach = false;
+                size = _segments.size();
 
-            // while we didn't find a segment and didn't reach the end of the segment vector
-            while (!stillSegmentToAttach && index < size) {
+                // while we didn't find a segment and didn't reach the end of the segment vector
+                while (!stillSegmentToAttach && index < size) {
 
-                // retrieve the next segment
-                std::vector<Vector2> currentSegment = _segments.at(index);
+                    // retrieve the next segment
+                    std::vector<Vector2> currentSegment = _segments.at(index);
 
-                // retrieve the points
-                Vector2 point1 = currentSegment.at(0);
-                Vector2 point2 = currentSegment.at(1);
+                    // retrieve the points
+                    Vector2 point1 = currentSegment.at(0);
+                    Vector2 point2 = currentSegment.at(1);
 
-                // if there is a point in common add the other point of the segment
-                // and erase this segment from the list
-                if (point1.x() == lastVectorAdded.x() && point1.y() == lastVectorAdded.y()) {
+                    // if there is a point in common add the other point of the segment
+                    // and erase this segment from the list
+                    if (point1.x() == lastVectorAdded.x() && point1.y() == lastVectorAdded.y()) {
 
-                    curve.push_back(point2);
+                        curve.push_back(point2);
 
-                    _segments.erase(_segments.begin()+index);
+                        _segments.erase(_segments.begin()+index);
 
-                    stillSegmentToAttach = true;
+                        stillSegmentToAttach = true;
 
-                } else if (point2.x() == lastVectorAdded.x() && point2.y() == lastVectorAdded.y()) {
+                    } else if (point2.x() == lastVectorAdded.x() && point2.y() == lastVectorAdded.y()) {
 
-                    curve.push_back(point1);
+                        curve.push_back(point1);
 
-                    _segments.erase(_segments.begin()+index);
+                        _segments.erase(_segments.begin()+index);
 
-                    stillSegmentToAttach = true;
+                        stillSegmentToAttach = true;
+                    }
+
+                    index++;
                 }
 
-                index++;
             }
+            // if we didn't founded a segment that has a point in common
+            else {
+                // add the first founded curve
+                _curves.push_back(curve);
 
+                // clear it and add the first segment of the remaining ones
+                curve.clear();
+                newSegment = _segments.at(0);
+
+                curve.push_back(newSegment.at(0));
+                curve.push_back(newSegment.at(1));
+
+                // erase the first segment added to the curve.
+                _segments.erase(_segments.begin());
+
+                stillSegmentToAttach = true;
+            }
         }
-         // if we didn't founded a segment that has a point in common
-        else {
 
-            // add the first founded curve
-            _curves.push_back(curve);
-
-            // clear it and add the first segment of the remaining ones
-            curve.clear();
-            newSegment = _segments.at(0);
-
-            curve.push_back(newSegment.at(0));
-            curve.push_back(newSegment.at(1));
-
-            // erase the first segment added to the curve.
-            _segments.erase(_segments.begin());
-
-            stillSegmentToAttach = true;
-        }
+        // add the last curve if there is one
+        _curves.push_back(curve);
+    } else {
+        std::cout << "no segment where founded probalbly only positive or negative values" << std::endl;
     }
-
-    // add the last curve if there is one
-    _curves.push_back(curve);
 }
 
 
@@ -323,8 +325,6 @@ short Grid::computeContourValue(int val0, int val1, int val2, int val3) {
     return value;
 }
 
-
-
 void Grid::computeSingleSegment(int x0, int y0, int x1, int y1,
                                 int x2, int y2,  int x3, int y3) {
 
@@ -366,7 +366,6 @@ void Grid::interpolatePosition(int x0, int y0, int x1, int y1, double t1,
     Grid::addSegmentToSegments(xPoint1, yPoint1, xPoint2, yPoint2);
 }
 
-
 void Grid::addSegmentToSegments(double xPoint1, double yPoint1, double xPoint2, double yPoint2) {
 
     std::vector<Vector2> newSegment;
@@ -382,9 +381,8 @@ double Grid::computePositionFactor(double val1, double val2) {
 
 
 double Grid::changeSystemReference(double value, double size) {
-    return value / (size-1) * 2 -1;
+    return value / (size - 1) * 2 - 1;
 }
-
 
 void Grid::setChoice(int choice) {
     _implicit.setChoice(choice);
@@ -393,7 +391,6 @@ void Grid::setChoice(int choice) {
 int Grid::getChoice() {
     return _implicit.getChoice();
 }
-
 
 void Grid::addBlob(double a, double b, Vector2 center, double r) {
     _implicit.addBlob(a, b, center, r);

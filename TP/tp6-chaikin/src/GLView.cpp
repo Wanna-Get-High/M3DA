@@ -17,7 +17,7 @@ GLView::GLView(QWidget *parent) : QGLWidget(parent) {
 
     setFocusPolicy(Qt::StrongFocus); // this widget can now catch the keyboard events
 
-    _choice=0;
+    _choice = 0;
 }
 
 
@@ -71,9 +71,7 @@ void GLView::resizeGL(int width, int height) {
     glViewport(0,0,width,height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-
-    // changed the value so that the points are inside the view with a small padding
-    glOrtho(-1.2, 1.2, -1.2, 1.2, -1.2, 1.2);
+    glOrtho(-1,1,-1,1,-1,1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -84,11 +82,15 @@ void GLView::resizeGL(int width, int height) {
   Events
   **/
 void GLView::mousePressEvent(QMouseEvent *event) {
-    if (event->button()==Qt::LeftButton) {
-        cout << "left mouse : " << event->x() << "," << event->y() << endl;
-    }
-    if (event->button()==Qt::RightButton) {
-        cout << "right mouse : " << event->x() << "," << event->y() << endl;
+
+    // on met les coordonnees a la bonne echelle.
+    double x = event->x() / (double)(width()/2) -1;
+    double y = -(event->y() / (double)(height()/2) -1);
+
+    if (event->button()==Qt::LeftButton) {        
+        _subdivision.addPointToCurve(x, y, false);
+    } else if (event->button()==Qt::RightButton) {
+        _subdivision.addPointToCurve(x, y, true);
     }
 }
 
@@ -99,7 +101,6 @@ void GLView::mouseMoveEvent(QMouseEvent *event) {
 void GLView::mouseReleaseEvent(QMouseEvent *event) {
     switch(event->button()){
     case Qt::LeftButton:
-        cout << "left mouse released" << endl;
         break;
     case Qt::RightButton:
         break;
@@ -118,13 +119,36 @@ void GLView::keyPressEvent(QKeyEvent *event) {
     else
         switch(event->key()){
         case Qt::Key_Z:
-            cout << "Z pressed" << endl;
+            cout << "particular Chaikin" << endl;
+            _subdivision.useParticularChaikin();
+            break;
+        case Qt::Key_Q:
+            cout << "increment a value" << endl;
+            _subdivision.incrA();
+            break;
+        case Qt::Key_A:
+            cout << "decrement a value" << endl;
+            _subdivision.decrA();
+            break;
+        case Qt::Key_W:
+            cout << "increment nb iteration" << endl;
+            _subdivision.incrNbIteration();
             break;
         case Qt::Key_S:
-            cout << "S pressed" << endl;
+            cout << "decrement nb iteration" << endl;
+            _subdivision.decrNbIteration();
             break;
-        case Qt::Key_Space:
-            cout << "space pressed" << endl;
+        case Qt::Key_C:
+            if(_choice == 1) {
+                cout << "close/open the curve" << endl;
+                _subdivision.closeCurve();
+            } else {
+                cout << "Only work on Dyn and Levin curve" << endl;
+            }
+            break;
+        case Qt::Key_R:
+            cout << "remove the last point (if the curve is closed -> won't remove one)" << endl;
+            _subdivision.removeLastPoint();
             break;
         default:
             QGLWidget::keyPressEvent(event); // dispatch the event to the parent
@@ -136,28 +160,15 @@ void GLView::keyReleaseEvent(QKeyEvent *event) {
         QGLWidget::keyReleaseEvent(event);
     else
         switch(event->key()){
-        case Qt::Key_Space:
-            cout << "space released" << endl;
-        case Qt::Key_Z:
-            break;
-        case Qt::Key_S:
-            break;
         default:
-            QGLWidget::keyReleaseEvent(event); // dispatch the event to the parent
+            QGLWidget::keyReleaseEvent(event);
         }
 }
-
-
 
 /** ***************************************************************************
   init/update data
   **/
-void GLView::initData() {
-    // init choice 1
-    _grid = new Grid(10, 10);
-    _grid->setChoice(0);
-    _grid->eval();
-}
+void GLView::initData() { }
 
 void GLView::updateData() {
     updateGL();
@@ -169,128 +180,75 @@ void GLView::updateData() {
   Drawings
 **/
 
-void GLView::drawPoints() {
-    _grid->drawGridAsPoints();
-    _grid->drawCurvesWithPoints();
-}
-
-void GLView::drawLines() {
-    _grid->drawGridAsLines();
-    _grid->drawCurvesWithLines();
-}
-
 void GLView::paintGL() {
     /// clears the window
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    /// choice example
-    switch(_choice) {
-    case 0:
-        drawPoints();
-        break;
-    case 1:
-        drawLines();
-        break;
-    case 2:
-        drawLines();
-        break;
-    case 3:
-        drawLines();
-        break;
-    case 4:
-        drawLines();
-        break;
-    case 5:
-        drawLines();
-        break;
-    }
+    string choice;
+    char nbIteration [80];
+    char aValue [80];
+    string isClosed;
+    string isParticular;
+
+    if (_subdivision.choice() == 0) choice = " Chaikin";
+    else                            choice = " Dyn and Levin";
+
+    sprintf(nbIteration, " Nb iteration : %d", _subdivision.nbIteration());
+    sprintf(aValue, " a : %f", _subdivision.a());
+
+    string nbIt = string(nbIteration);
+    string aVal = string(aValue);
+
+    if (_subdivision.isClosed()) isClosed = " Closed";
+    else                         isClosed = " Not closed";
+
+    if (_subdivision.isParticular())    isParticular = " Is Particular";
+    else                                isParticular = " Isn't' Particular";
+
+    // draw the choice
+    glColor3d(1,0,0);
+    ugl::drawText(choice, 0, 0);
+
+    // draw the number of iteration
+    glColor3d(0,0,1);
+    ugl::drawText(nbIt, 0, 0.03);
+
+    // draw the value of a
+    glColor3d(1,0,0);
+    ugl::drawText(aVal, 0, 0.06);
+
+    // tell if we use the particular process for chaikin
+    glColor3d(0,0,1);
+    ugl::drawText(isParticular, 0, 0.09);
+
+    // tell if the curve is closed
+    glColor3d(1,0,0);
+    ugl::drawText(isClosed, 0, 0.12);
+
+     _subdivision.drawCurve();
+     _subdivision.drawFixedPoint();
 }
+
 
 /** ********************************************************************** **/
 
-void GLView::initCircle()  {
-
-    delete _grid;
-    _grid = NULL;
-
-    _grid = new Grid(10, 10);
-    _grid->setChoice(0);
-    _grid->eval();
-}
-
-void GLView::initBlobFirstAmbigusChoice()  {
-    delete _grid;
-    _grid = NULL;
-
-    _grid = new Grid(10, 10);
-    _grid->addBlob(2.5, 4, Vector2(0.3,0.3), 1);
-    _grid->addBlob(2.5, 4, Vector2(-0.3,-0.3), 1);
-    _grid->setChoice(1);
-    _grid->setAmbigusChoice(0);
-    _grid->eval();
-}
-
-void GLView::initBlobSecondAmbigusChoice()  {
-    delete _grid;
-    _grid = NULL;
-
-    _grid = new Grid(10, 10);
-    _grid->addBlob(2.5, 4, Vector2(0.3,0.3), 1);
-    _grid->addBlob(2.5, 4, Vector2(-0.3,-0.3), 1);
-    _grid->setChoice(1);
-    _grid->setAmbigusChoice(1);
-    _grid->eval();
-}
-
-void GLView::initBlobHigherResolution()  {
-    delete _grid;
-    _grid = NULL;
-
-    _grid = new Grid(20, 20);
-    _grid->addBlob(2.5, 4, Vector2(0.3,0.3), 1);
-    _grid->addBlob(2.5, 4, Vector2(-0.3,-0.3), 1);
-    _grid->setChoice(1);
-    _grid->setAmbigusChoice(1);
-    _grid->eval();
-}
-
-void GLView::initSoftObjects()  {
-    delete _grid;
-    _grid = NULL;
-
-    _grid = new Grid(10, 10);
-    _grid->addBlob(2.5, 4, Vector2(0.3,0.3), 1);
-    _grid->addBlob(2.5, 4, Vector2(-0.3,-0.3), 1);
-
-    _grid->setChoice(2);
-    _grid->setAmbigusChoice(1);
-    _grid->eval();
-}
-
-void GLView::choice(int i, const string &s) {
+void GLView::choice(int i,const string &s) {
     // i = button number, s = button text
     cout << "choice " << i << " " << s << endl;
     _choice=i;
     _choiceText=s;
 
+    _subdivision.resetCurves();
+
     switch(_choice) {
     case 0:
-        initCircle();
+        _subdivision.useChaikin();
         break;
     case 1:
-        initCircle();
-        break;
-    case 2:
-        initBlobFirstAmbigusChoice();
-        break;
-    case 3:
-        initBlobSecondAmbigusChoice();
-        break;
-    case 4:
-        initBlobHigherResolution();
-        break;
-    case 5:
-        initSoftObjects();
+        _subdivision.useDynAndLevin();
         break;
     }
 }
+
+
+
